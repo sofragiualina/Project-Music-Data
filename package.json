@@ -1,8 +1,9 @@
 {
-  "name": "project-music-data",
+  "name": "music-listening-analysis",
   "version": "1.0.0",
-  "main": "script.js",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "test": "node common.test.mjs"
+    "test": "node --test"
   }
 }
