@@ -161,28 +161,15 @@ function getSongsListenedToEveryDay(events) {
     songsByDay.get(date).add(event.song_id);
   }
 
-  const dates = [...songsByDay.keys()].sort();
-  const firstDate = new Date(`${dates[0]}T00:00:00Z`);
-  const lastDate = new Date(`${dates[dates.length - 1]}T00:00:00Z`);
-  const songsOnFirstDay = songsByDay.get(dates[0]);
+  // Only count dates when the user actually listened to music.
+  const songsOnActiveDays = [...songsByDay.values()];
+  const songsOnFirstDay = songsOnActiveDays[0];
   const songsListenedEveryDay = [];
 
   for (const songId of songsOnFirstDay) {
-    let listenedEveryDay = true;
-
-    for (
-      let date = new Date(firstDate);
-      date <= lastDate;
-      date.setUTCDate(date.getUTCDate() + 1)
-    ) {
-      const dateString = date.toISOString().slice(0, 10);
-      const songs = songsByDay.get(dateString);
-
-      if (!songs || !songs.has(songId)) {
-        listenedEveryDay = false;
-        break;
-      }
-    }
+    const listenedEveryDay = songsOnActiveDays.every((songs) =>
+      songs.has(songId),
+    );
 
     if (listenedEveryDay) {
       songsListenedEveryDay.push(songId);

@@ -85,7 +85,7 @@ test("getLongestStreak returns all songs tied for the longest streak", () => {
   ]);
 });
 
-test("getSongsListenedToEveryDay finds songs present on every calendar day", () => {
+test("getSongsListenedToEveryDay finds songs present on every listening day", () => {
   const events = [
     { song_id: "A", timestamp: "2026-08-01T10:00:00Z" },
     { song_id: "B", timestamp: "2026-08-01T11:00:00Z" },
@@ -97,7 +97,7 @@ test("getSongsListenedToEveryDay finds songs present on every calendar day", () 
   assert.deepEqual(getSongsListenedToEveryDayForTesting(events), ["A"]);
 });
 
-test("getSongsListenedToEveryDay excludes songs missing on a calendar day", () => {
+test("getSongsListenedToEveryDay excludes songs missing on a listening day", () => {
   const events = [
     { song_id: "A", timestamp: "2026-08-01T10:00:00Z" },
     { song_id: "B", timestamp: "2026-08-01T11:00:00Z" },
@@ -112,11 +112,11 @@ test("getSongsListenedToEveryDay returns an empty array for no events", () => {
   assert.deepEqual(getSongsListenedToEveryDayForTesting([]), []);
 });
 
-test("getSongsListenedToEveryDay returns an empty array when a calendar day is missing", () => {
+test("getSongsListenedToEveryDay ignores days with no listening activity", () => {
   const events = [
     { song_id: "A", timestamp: "2026-08-01T10:00:00Z" },
     { song_id: "A", timestamp: "2026-08-03T10:00:00Z" },
   ];
 
-  assert.deepEqual(getSongsListenedToEveryDayForTesting(events), []);
+  assert.deepEqual(getSongsListenedToEveryDayForTesting(events), ["A"]);
 });
