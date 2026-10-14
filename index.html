@@ -1,7 +1,41 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <script type="module" src="script.mjs"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Music Listening Analysis</title>
+
+    <link rel="stylesheet" href="./style.css" />
+    <script type="module" src="./script.mjs"></script>
   </head>
-  <body></body>
+
+  <body>
+    <header>
+      <h1>Music Listening Analysis</h1>
+      <p>Explore listening habits for each user.</p>
+    </header>
+
+    <main>
+      <section aria-labelledby="user-heading">
+        <h2 id="user-heading">Choose a user</h2>
+
+        <label for="user-select">Select a user ID</label>
+        <select id="user-select" name="user"></select>
+      </section>
+
+      <section
+        id="results"
+        aria-labelledby="results-heading"
+        aria-live="polite"
+        aria-atomic="false"
+      >
+        <h2 id="results-heading">Listening results</h2>
+
+        <p id="status" role="status">Loading listening data...</p>
+
+        <div id="statistics"></div>
+      </section>
+    </main>
+  </body>
 </html>
