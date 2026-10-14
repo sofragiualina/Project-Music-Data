@@ -161,24 +161,48 @@ function getSongsListenedToEveryDay(events) {
     songsByDay.get(date).add(event.song_id);
   }
 
-  const days = [...songsByDay.values()];
-  const songsOnFirstDay = days[0];
+  const dates = [...songsByDay.keys()].sort();
+  const firstDate = new Date(`${dates[0]}T00:00:00Z`);
+  const lastDate = new Date(`${dates[dates.length - 1]}T00:00:00Z`);
+  const songsOnFirstDay = songsByDay.get(dates[0]);
+  const songsListenedEveryDay = [];
 
-  return [...songsOnFirstDay].filter((songId) =>
-    days.every((songs) => songs.has(songId)),
-  );
+  for (const songId of songsOnFirstDay) {
+    let listenedEveryDay = true;
+
+    for (
+      let date = new Date(firstDate);
+      date <= lastDate;
+      date.setUTCDate(date.getUTCDate() + 1)
+    ) {
+      const dateString = date.toISOString().slice(0, 10);
+      const songs = songsByDay.get(dateString);
+
+      if (!songs || !songs.has(songId)) {
+        listenedEveryDay = false;
+        break;
+      }
+    }
+
+    if (listenedEveryDay) {
+      songsListenedEveryDay.push(songId);
+    }
+  }
+
+  return songsListenedEveryDay;
 }
 
 function getTopGenres(events) {
-  const genres = events
-    .map((event) => getSongDetails(event.song_id))
-    .filter(Boolean)
-    .map((song) => song.genre);
-
   const counts = new Map();
 
-  for (const genre of genres) {
-    counts.set(genre, (counts.get(genre) || 0) + 1);
+  for (const event of events) {
+    const song = getSongDetails(event.song_id);
+
+    if (!song || !song.genre) {
+      continue;
+    }
+
+    counts.set(song.genre, (counts.get(song.genre) || 0) + 1);
   }
 
   return [...counts.entries()]
@@ -205,8 +229,9 @@ function getArtistResults(results) {
 }
 
 export function analyseUser(userId) {
-  // Sort a copy so streak calculations use chronological listening events.
-  const events = [...getListenEvents(userId)].sort(
+  const originalEvents = [...getListenEvents(userId)];
+
+  const events = [...originalEvents].sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
   );
 
@@ -227,7 +252,9 @@ export function analyseUser(userId) {
   const fridaySongs = getSongCount(fridayEvents);
   const fridaySongsByTime = getSongListeningTime(fridayEvents);
 
-  const longestStreak = getLongestStreak(events);
+  // Use the original data order to calculate the longest streak.
+  const longestStreak = getLongestStreak(originalEvents);
+
   const everyDaySongs = getSongsListenedToEveryDay(events);
   const topGenres = getTopGenres(events);
 
@@ -256,11 +283,14 @@ export function analyseUser(userId) {
   };
 }
 
-// Exported for unit tests.
 export function getMostCommonForTesting(items) {
   return getMostCommon(items);
 }
 
 export function getLongestStreakForTesting(events) {
   return getLongestStreak(events);
+}
+
+export function getSongsListenedToEveryDayForTesting(events) {
+  return getSongsListenedToEveryDay(events);
 }
